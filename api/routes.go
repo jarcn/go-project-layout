@@ -7,5 +7,5 @@ import (
 
 func Register(r *gin.Engine) {
 	// 初始页面
-	r.GET("/", http_spec.Welcome)
+	r.GET("/welcome", http_spec.Welcome)
 }
