@@ -1,4 +1,4 @@
-package test
+package examples
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	es "github.com/elastic/go-elasticsearch/v7"
+	es "github.com/elastic/go-elasticsearch/v7" //使用es官方提供的client
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,6 +17,7 @@ var (
 	gclient *es.Client
 )
 
+// 初始化es客户端
 func init() {
 	var err error
 	gclient, err = es.NewClient(es.Config{
@@ -35,6 +36,7 @@ func TestNewESClient(t *testing.T) {
 	fmt.Println(gclient.Info())
 }
 
+// 创建索引
 func TestCreateIndex(t *testing.T) {
 	a := assert.New(t)
 	response, err := gclient.Indices.Create("book_002", gclient.Indices.Create.WithBody(strings.NewReader(`
@@ -85,6 +87,7 @@ func TestCreateIndex(t *testing.T) {
 	fmt.Println(response)
 }
 
+// 使用别名查询索引信息
 func TestGetIndex(t *testing.T) {
 	a := assert.New(t)
 	response, err := gclient.Indices.Get([]string{"book"})
@@ -92,6 +95,7 @@ func TestGetIndex(t *testing.T) {
 	fmt.Println(response)
 }
 
+// 删除索引
 func TestDeleteIndex(t *testing.T) {
 	a := assert.New(t)
 	response, err := gclient.Indices.Delete([]string{"book_002"})
@@ -99,6 +103,7 @@ func TestDeleteIndex(t *testing.T) {
 	fmt.Println(response)
 }
 
+// 定义文档结构
 type doc struct {
 	Doc interface{} `json:"doc"`
 }
@@ -113,6 +118,7 @@ type Book struct {
 	Summary string     `json:"summary,omitempty"`
 }
 
+// 创建文档
 func TestCreateDocument(t *testing.T) {
 	a := assert.New(t)
 	body := &bytes.Buffer{}
@@ -131,6 +137,7 @@ func TestCreateDocument(t *testing.T) {
 	fmt.Println(response)
 }
 
+// 向索引中添加文档
 func TestIndexDocument(t *testing.T) {
 	a := assert.New(t)
 	body := &bytes.Buffer{}
@@ -149,6 +156,7 @@ func TestIndexDocument(t *testing.T) {
 	t.Log(response)
 }
 
+// 覆盖更新文档数据
 func TestPartialUpdateDocument(t *testing.T) {
 	a := assert.New(t)
 	body := &bytes.Buffer{}
@@ -163,6 +171,7 @@ func TestPartialUpdateDocument(t *testing.T) {
 	t.Log(response)
 }
 
+// 查询文档数据
 func TestGetDocument(t *testing.T) {
 	a := assert.New(t)
 	response, err := gclient.Get("book", "10001")
@@ -170,12 +179,18 @@ func TestGetDocument(t *testing.T) {
 	t.Log(response)
 }
 
+// 批量添加文档与删除文档
 func TestBulk(t *testing.T) {
 	createBooks := []*Book{
 		{
 			ID:     "10001",
 			Name:   "笑傲江湖",
 			Author: "金庸",
+		},
+		{
+			ID:     "20001",
+			Name:   "陆小凤传奇",
+			Author: "古龙",
 		},
 	}
 	deleteBookIds := []string{}
@@ -203,6 +218,7 @@ func TestBulk(t *testing.T) {
 	t.Log(response)
 }
 
+// 条件检索
 func TestSearch(t *testing.T) {
 	a := assert.New(t)
 	body := &bytes.Buffer{}
